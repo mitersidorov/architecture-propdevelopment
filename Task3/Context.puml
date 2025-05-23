@@ -1,0 +1,29 @@
+@startuml
+!includeurl https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+' Определение акторов и внешних систем
+Person(sobstvennik, "Собственник", "Пользователь мобильного приложения")
+
+System_Ext(mobileApp, "Мобильное приложение", "Приложение, через которое собственники управляют сервисами")
+System_Ext(partnerPlatform, "Платформа партнёра", "Внешняя система, управляющая устройствами")
+System_Ext(smartIntercom, "Устройство: Видеодомофон", "Физическое устройство у входа")
+System_Ext(smartGate, "Устройство: Шлагбаум", "Физическое устройство у въезда")
+
+System_Boundary(propDev, "PropDevelopment — Группа сервисов ЖКУ") {
+    System(tenantCore, "tenant-core-app", "Обрабатывает команды, проверяет доступ, вызывает API партнёра")
+    System(showcase, "Витрина сервисов", "Фронтенд управления из приложения")
+    System(audit, "Сервис логирования", "Фиксирует все команды и действия")
+}
+
+' Взаимодействия
+Rel(sobstvennik, mobileApp, "Использует", "iOS / Android")
+Rel(mobileApp, showcase, "Показывает интерфейс управления")
+Rel(mobileApp, tenantCore, "Отправляет команды доступа")
+Rel(tenantCore, partnerPlatform, "Вызов API (метка доступа, ID)", "REST")
+
+Rel(partnerPlatform, smartIntercom, "Управление вызовом/открытием двери")
+Rel(partnerPlatform, smartGate, "Управление доступом по номеру")
+
+Rel(tenantCore, audit, "Логирует все операции доступа", "Kafka / лог-сервис")
+
+@enduml
